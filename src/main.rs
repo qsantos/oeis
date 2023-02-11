@@ -1,18 +1,12 @@
-#![feature(bigint_helper_methods)]
-
 use std::io::prelude::*;
 use std::io::stdout;
 
-fn is_counter_example(n: u64) -> bool {
-    for p in [
-        7, 11, 13, 17, 31, 37, 41, 43, 59, 61, 67, 73, 79, 83, 89, 103, 107, 109, 113, 127, 131,
-        137,
-    ] {
+fn is_counter_example(n: u128) -> bool {
+    for p in [7, 11, 13, 17, 31, 37, 41, 43, 59, 61, 67, 73, 79] {
         if n % p == 0 {
             return false;
         }
     }
-    let two_to_64_mod_n = (((1u64 << 63) % n) * 2) % n;
     let mut r = 1;
     let mut p = n;
     let mut acc = 2;
@@ -21,13 +15,7 @@ fn is_counter_example(n: u64) -> bool {
             r *= acc;
             r %= n;
         }
-        // acc = (acc * acc) % n
-        //
-        // (acc * acc) % n = (high * 2**64 + low) % n
-        //                 = ((high  % n) * (2**64 % n) + (low % n)) % n
-        let (low, high) = acc.widening_mul(acc);
-        acc = ((high % n) * two_to_64_mod_n + (low % n)) % n;
-
+        acc = (acc * acc) % n;
         p /= 2;
     }
     r == 3
