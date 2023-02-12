@@ -1,3 +1,4 @@
+use rayon::prelude::*;
 use std::collections::HashMap;
 
 fn main() {
@@ -19,17 +20,18 @@ fn main() {
             b5_plus_c5.insert(b5 + c5, (b, c));
         }
 
-        'outer_for: for d in 1..a {
+        (1..a).into_par_iter().find_any(|&d| {
             let d5 = d.pow(5);
             for e in 1..=d {
                 let e5 = e.pow(5);
                 let a5_minus_d5_plus_e5 = a5 - (d5 + e5);
                 if let Some((b, c)) = b5_plus_c5.get(&a5_minus_d5_plus_e5) {
                     println!("{a}⁵ = {b}⁵ + {c}⁵ + {d}⁵ + {e}⁵");
-                    break 'outer_for;
+                    return true;
                 }
             }
-        }
+            false
+        });
 
         a += 1;
     }
